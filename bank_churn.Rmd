@@ -1,0 +1,362 @@
+---
+title: "Bank Customer Churn Analysis Report"
+author: "Maria Aslam"
+date: "`r Sys.Date()`"
+output:
+html_document:
+    toc: true
+    toc_depth: 2
+    theme: flatly
+---
+
+
+
+# Executive Summary 
+
+### Strategic Overview 
+This report analyzes customer attrition across our European banking operations. While France and Spain maintain stable churn rates (~16%), the bank faces a critical emergency in the German market, where churn has spiked to 32.4%. This analysis shifts focus from *who is leaving* to *why our most valuable segments are exiting*. 
+
+### Key Findings 
+* **The Two-Product Anchor:** We have identified a Survival Sweet Spot where customers with exactly 2 products have the highest loyalty (11–13% churn). 
+* **Product Over-Saturation:** A catastrophic failure occurs when German customers reach 3 or 4 products, resulting in a 90–100% exit rate. This suggests our complex bundles are driving customers away rather than locking them in. 
+* **Premium Segment Flight:** Churn is not limited to low-value accounts. High-balance customers and those in the "Very Good" credit tier (~33.5% churn) are leaving at nearly the same rate as high-risk segments. 
+* **Service Failure:** There is a near-total correlation between complaints and attrition. Currently, a complaint is a "guaranteed exit signal," indicating our resolution process is failing to recover dissatisfied users.
+
+### Core Recommendations 
+* **Plus-One Retention:** Focus marketing on moving 1-product holders to 2 products; avoid pushing to 3+ until the *Product Fatigue* issue is resolved. 
+* **German Priority Desk:** Launch a localized retention program for high-credit/high-balance German users to counter aggressive competitor poaching. 
+* **Active Recovery:** Implement a proactive "Re-engagement" protocol for inactive German users before they hit the 41.1% churn threshold just check executive sumary section? is ti ok just excutive summary focus
+
+
+# Data Cleaning & Methodology
+
+To ensure the integrity of this analysis, the raw dataset underwent a rigorous preprocessing phase within the R environment. This ensures that all statistical summaries and visualizations reflect accurate customer behavior.
+
+### The Cleaning Process
+* **Dimensionality Reduction:** Irrelevant features such as `RowNumber`, `CustomerId`, and `Surname` were removed. These variables contain unique identifiers that do not contribute to churn patterns and would introduce "noise" into the analysis.
+* **Attribute Re-classification:** Several columns were imported as integers but represent categorical states. I converted Exited, HasCrCard, IsActiveMember, and Complain into Factors. This allows the analysis to treat them as distinct groups rather than continuous numerical values.
+* **Data Consistency Check:** I verified the Geography column for missing values and spelling inconsistencies to ensure the reliability of the regional "Deep Dive" results.
+* **Metric Calculation Logic:** During the summarization of churn rates, a nested `as.numeric(as.character())` transformation was used. This ensures that binary factor levels are correctly interpreted for accurate percentage calculations.
+
+
+
+```{r setup, include=FALSE}
+library("tidyverse")
+library("ggplot2")
+library("knitr")
+library("dplyr")
+library("tidyr")
+library("readr")
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+```
+
+```{r, include=FALSE}
+churn_rec <- read_csv("Customer-Churn-Records.csv")
+
+```
+
+```{r, include=FALSE}
+bank_churn_cleaned <- churn_rec %>%
+  select(-RowNumber, -CustomerId, -Surname) %>%
+  mutate(across(c(Exited, HasCrCard, IsActiveMember, Complain), as.factor))
+```
+# Detail Analysis
+
+The dataset contains customer demographic, financial, and behavioral information used to analyze churn patterns.
+**Total customers** ≈ 10,000
+**Countries:** 
+
+* France
+* Germany
+* Spain
+
+
+## Quick Summary
+
+
+```{r, echo=FALSE}
+summary_tbl <- bank_churn_cleaned %>%
+  summarise(
+    Total_Customers  = n(),
+    Total_Exited     = sum(Exited == 1),
+    Total_Active     = sum(IsActiveMember == 1),
+    Total_Complaints = sum(Complain == 1),
+    # Adding your churn rate logic here:
+    Churn_Rate       = mean(as.numeric(as.character(Exited)))
+  )
+
+# Displaying with formatting
+kable(
+  summary_tbl %>% 
+    mutate(Churn_Rate = scales::percent(Churn_Rate)),
+  caption = " ",
+  col.names = c("Total Customers", "Total Exited", "Active Members", "Total Complaints", "Churn Rate")
+)
+```
+
+
+Approximately **20% of customers have churned**, indicating moderate customer attrition risk.
+
+
+
+### Tenure Analysis
+
+
+```{r, echo=FALSE}
+bank_churn_cleaned %>%
+  group_by(Tenure) %>%
+  summarise(Exited = sum(as.numeric(as.character(Exited)))) %>%
+  
+  ggplot(aes(x = Tenure, y = Exited)) +
+  geom_line(color = "steelblue", size = 1) +
+  geom_point(color = "steelblue", size = 2) +
+  # Fixes both axes: X shows every year, Y starts at 0
+  scale_x_continuous(breaks = 0:10) + 
+  scale_y_continuous(limits = c(0, NA)) + 
+  labs(
+    title = " ", 
+    subtitle = " ",
+    x = "Tenure (Years)", 
+    y = "Number of Exits"
+  ) +
+  theme_minimal()
+```
+
+
+The data contradicts the standard **loyalty curve** where churn should decrease as tenure increases. To improve retention, the focus must shift from just winning back new joiners to addressing the **sustained dissatisfaction** that causes veteran customers of 5+ years to leave at the same rate as those of 0-2 years.
+
+
+### Churn by Gender
+
+
+```{r, include=FALSE}
+gender_analysis <- bank_churn_cleaned %>%
+  group_by(Gender) %>%
+  summarise(Churn_Rate_gender = mean(as.numeric(as.character(Exited))))
+```
+```{r, echo= FALSE}
+ggplot(gender_analysis, aes(x = reorder(Gender, -Churn_Rate_gender), y = Churn_Rate_gender, fill = Gender)) +
+  geom_col() +
+  geom_text(aes(label = paste0(round(Churn_Rate_gender * 100, 1), "%")), 
+            vjust = -0.5) + 
+  scale_y_continuous(expand = expansion(mult = c(0, 0.2))) + 
+  labs(
+    title = "  ",
+    x = "Gender",
+    y = NULL
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = "none",
+    axis.text.y = element_blank(),
+    panel.grid.major.y = element_blank()
+  )
+```
+
+
+There is a stark contrast in retention across gender lines: Female customers exhibit a 25.1% churn rate, while Male customers churn at 16.5%. This represents an **8.6% absolute difference**, meaning women are roughly **1.5 times** more likely to leave the bank than men.
+
+
+### Complain Impact On Churn
+
+
+```{r, echo=FALSE}
+bank_churn_cleaned %>%
+  # Filter only for people who actually complained
+  filter(Complain == 1) %>% 
+  summarise(Total_Exits = sum(as.numeric(as.character(Exited)))) %>%
+  ggplot(aes(x = "Complained & Exited", y = Total_Exits)) +
+  geom_col(fill = "firebrick", width = 0.5) +
+  # This adds the 2034 number on top
+  geom_text(aes(label = Total_Exits), vjust = -0.5, size = 6, fontface = "bold") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.2))) +
+  labs(
+    title = "  ",
+    x = NULL,
+    y = "Number of Customers"
+  ) +
+  theme_minimal() +
+  theme(axis.text.y = element_blank(), panel.grid = element_blank())
+```
+
+
+**2,034** customers transitioned from Complaint Filed to Account Closed, representing a **100% failure** rate in complaint-driven retention
+
+
+### Product Vs Churn
+
+
+```{r}
+bank_churn_cleaned %>%
+  group_by(NumOfProducts) %>%
+  summarise(Churn_Rate = mean(as.numeric(as.character(Exited)))) %>%
+  ggplot(aes(x = factor(NumOfProducts), y = Churn_Rate, fill = factor(NumOfProducts))) +
+  geom_col() +
+  geom_text(aes(label = paste0(round(Churn_Rate * 100, 1), "%")), 
+            vjust = -0.5, size = 4.5) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.2))) +
+  # Using a professional color palette
+  scale_fill_brewer(palette = "Blues") +
+  labs(
+    title = "  ",
+    x = "Number of Products",
+    y = "Churn Rate (%)"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none", axis.text.y = element_blank())
+```
+
+
+The data reveals a *U-Shaped risk curve*. Customers with 2 products have the highest loyalty (lowest churn). However, churn increases significantly for Single-Product customers and **spikes dangerously** for those with 3 or 4 products (often exceeding (80-90%)
+
+
+### Churn by Geography
+
+
+```{r, include=FALSE}
+geographic_analysis <- bank_churn_cleaned %>%
+  group_by(Geography) %>%
+  summarise(Churn_Rate_geography = mean(as.numeric(as.character(Exited))))
+
+```
+```{r, echo=FALSE}
+ggplot(geographic_analysis, aes(x = reorder(Geography, -Churn_Rate_geography), y = Churn_Rate_geography, fill = Geography)) +
+  geom_col() +
+  geom_text(aes(label = paste0(round(Churn_Rate_geography * 100, 1), "%")), 
+            vjust = -0.5) + 
+  # This 0.2 multiplier ensures the label doesn't "shift" off the top
+  scale_y_continuous(expand = expansion(mult = c(0, 0.2))) + 
+  labs(
+    title = "  ",
+    x = "Geography",
+    y = NULL
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = "none",
+    axis.text.y = element_blank(),
+    panel.grid.major.y = element_blank()
+  )
+```
+
+
+**Germany** requires an immediate **Deep Dive Audit**. We need to look at the German segment's demographics, average account balances, and product holdings to see if we are losing our most profitable customers or if this is a general exodus
+
+
+
+## Deep Dive Analysis | Germany
+
+
+Analysis On Why is Germany’s Churn Rate Significantly Higher ? 
+
+
+### Does Account Balance Influence Churn in Germany?
+
+
+```{r, echo=FALSE}
+bank_churn_cleaned %>%
+  filter(Geography == "Germany") %>%
+  mutate(Balance_Level = ifelse(Balance > mean(Balance), "High Balance", "Low Balance")) %>%
+  group_by(NumOfProducts, Balance_Level) %>%
+  summarise(Churn_Rate = mean(as.numeric(as.character(Exited)))) %>%
+  ggplot(aes(x = factor(NumOfProducts), y = Churn_Rate, fill = Balance_Level)) +
+  geom_col(position = "dodge") +
+  # We use round(..., 0) as you did, but ensure position_dodge matches
+  geom_text(aes(label = paste0(round(Churn_Rate*100, 0), "%")), 
+            position = position_dodge(width = 0.9), 
+            vjust = -0.5, 
+            fontface = "bold") +
+  # THIS LINE FIXES THE CUT-OFF ISSUES
+  scale_y_continuous(expand = expansion(mult = c(0, 0.2))) + 
+  labs(
+    title = "  ",
+    subtitle = "  ",
+    x = "Number of Products Held",
+    y = "Churn Rate (%)",
+    fill = "Customer Wealth"
+  ) +
+  theme_minimal() +
+  theme(axis.text.y = element_blank()) 
+```
+
+
+Notice that the High Balance and Low Balance are almost the same height in every category. This means German customers aren't leaving because they are rich or poor; they are leaving based on how many products they hold
+
+
+### Can Customer Engagement Help Reduce Churn in Germany?
+
+
+```{r, echo=FALSE}
+bank_churn_cleaned %>%
+  filter(Geography == "Germany") %>%
+  group_by(IsActiveMember) %>%
+  summarise(Churn_Rate = mean(as.numeric(as.character(Exited)))) %>%
+  ggplot(aes(x = factor(IsActiveMember, labels = c("Inactive", "Active")), y = Churn_Rate, fill = factor(IsActiveMember))) +
+  geom_col() +
+  # We use round(..., 1) for the label
+  geom_text(aes(label = paste0(round(Churn_Rate * 100, 1), "%")), 
+            vjust = -0.5, size = 5, fontface = "bold") +
+  # This line creates the extra space at the top so the text isn't cut off
+  scale_y_continuous(expand = expansion(mult = c(0, 0.2))) +
+  scale_fill_manual(values = c("gray70", "firebrick")) +
+  labs(
+    title = "  ", 
+    x = "Member Status", 
+    y = "Churn Rate (%)"
+  ) +
+  theme_minimal() +
+  theme(axis.text.y = element_blank()) # Removes the y-axis numbers since we have labels on the bars
+```
+
+
+Activity is a major factor in retention, but it is **not a cure**. Inactive members in Germany are in a state of collapse with a 41.1% churn rate, while Active members still churn at 23.7%
+
+
+### How Credit Quality Affects Customer Churn in Germany?
+
+
+```{r, echo=FALSE}
+bank_churn_cleaned %>%
+  filter(Geography == "Germany") %>%
+  mutate(Credit_Tier = cut(CreditScore, breaks = c(0, 580, 670, 740, 800, 850), 
+                           labels = c("Poor", "Fair", "Good", "Very Good", "Exceptional"))) %>%
+  group_by(Credit_Tier) %>%
+  summarise(Churn_Rate = mean(as.numeric(as.character(Exited)))) %>%
+  ggplot(aes(x = Credit_Tier, y = Churn_Rate, group = 1)) +
+  geom_line(color = "darkred", size = 1) +
+  geom_point(size = 3) +
+  labs(title = "  ", x = "Credit Tier", y = "Churn Rate (%)") +
+  theme_minimal()
+
+```
+
+
+Highest churn is among *Poor* credit holders **(~36%)?**, there is a significant and concerning spike in the *Very Good tier* **(~33.5%)**
+
+
+
+# Strategic Conclusion
+
+
+The data confirms that the bank's issue in Germany is not a lack of customer engagement, but a **gap in premium relationship management**. We are successfully attracting high-value, active, and credit-worthy customers, but our current ecosystem—specifically our complaint resolution and multi-product bundling—is creating *friction* that drives them to competitors. By stabilizing the German market through a *Plus-One* product strategy and a dedicated complaint-recovery desk, we can protect the bank's most profitable assets and reduce regional churn back to sustainable levels.
+
+# About the Author
+
+
+I am **Maria Aslam**, a Physics graduate with a strong interest in data analytics. I hold the **Google Data Analytics Professional Certificate** and have learned core analytical tools including R, Excel, SQL, Tableau, and Power BI through coursework and project-based learning. This project demonstrates my approach to applying analytical methods to business data as part of my ongoing skill development.
+
+
+###### **Connect on LinkedIn:** 
+
+[LinkedIn](https://www.linkedin.com/in/maria-aslam-458860316/){target="_blank"}
+
+
+###### **Explore More Dashboards:** 
+
+[Tableau Public Profile](https://public.tableau.com/app/profile/maria.aslam/vizzes){target="_blank"}
+
+
+###### **View the Source Code:**
+
+[GitHub Repository](https://github.com/Maria1681){target="_blank"}
+
