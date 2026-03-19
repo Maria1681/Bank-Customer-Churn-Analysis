@@ -1,4 +1,4 @@
-# Bank Customer Attrition Audit: The "Germany Emergency"
+# Bank Customer Churn Analysis
 **Strategic Retention Analysis & Predictive Insights | R-Language Project**
 
 ---
