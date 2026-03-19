@@ -41,9 +41,9 @@ To ensure statistical integrity, the raw dataset underwent rigorous preprocessin
 ---
 
 ## Repository Structure
-* `bank_churn_data.csv`: Raw demographic and financial records.
-* `churn_analysis.Rmd`: The source R Markdown file containing all documented cleaning steps.
-* `churn_analysis.html`: The final knitted report with all code hidden for professional presentation.
+*  '[Churn Analysis](https://bank-customer-churn-analysis.netlify.app/)': for live report
+* `bank_churn.Rmd`: The source R Markdown file containing all documented cleaning steps.
+* `index.html`: The final knitted report with all code hidden for professional presentation.
 
 ---
 **Maria Aslam** 
