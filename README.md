@@ -1,47 +1,50 @@
-# Bank-Customer-Churn-Analysis
+# Bank Customer Attrition Audit: The "Germany Emergency"
 **Strategic Retention Analysis & Predictive Insights | R-Language Project**
 
 ---
 
 ## Project Overview
-This analysis investigates a critical churn crisis across European banking operations. While France and Spain remain stable, the German market exhibits a **32.4% churn rate**. This project identifies the "Product Fatigue" threshold and provides a roadmap for stabilizing high-value customer segments.
+This analysis investigates a critical churn crisis across European banking operations. While France and Spain maintain stable churn rates (~16%), the German market exhibits a severe **32.4% churn rate**This project identifies the "Product Fatigue" threshold and provides a data-driven roadmap for stabilizing high-value customer segments.
 
-##  Project Deliverables
-*  **[Live Executive Report](https://bank-customer-churn-analysis.netlify.app/)** — *Polished Stakeholder View*
-*  **[Technical R-Markdown Script](./bank_churn.Rmd)** — *Data Cleaning & Visualization Logic*
-*  **[Bank Customer Dataset](./index.html)** 
+## Project Deliverables
+* 📈 **[Live Analysis Report](https://bank-customer-churn-analysis.netlify.app/)** — *Full R-Markdown Executive Summary*
+* 💾 **[Technical R-Script](bank_churn.Rmd)** — *End-to-end cleaning and visualization logic*
 
 ---
 
-##  Technical Stack
+## Technical Stack (R-Suite)
 | Category | Tools & Libraries |
 | :--- | :--- |
 | **Language** | R (v4.0+) |
-| **Data Cleaning** | Tidyverse (dplyr, tidyr) |
-| **Visualization** | ggplot2, Plotly |
-| **Data Types** | Factor Re-classification, Dimensionality Reduction |
+| **Data Wrangling** | `tidyverse` (dplyr, tidyr, readr) |
+| **Visualization** | `ggplot2` |
+| **Methodology** | [cite_start]Factor Re-classification, Dimensionality Reduction [cite: 27, 30] |
 | **Reporting** | R Markdown (Knit to HTML) |
 
 ---
 
-##  Key Strategic Findings
-* **The "Two-Product" Anchor:** Identified a loyalty sweet spot where customers with exactly 2 products show the lowest attrition (11-13%).
-* **German Market Crisis:** Churn in Germany (32.4%) is double that of France/Spain, driven by "Product Over-Saturation" (90%+ churn for 3+ products).
-* **The Service Gap:** Discovered a **100% failure rate** in complaint-driven retention; every customer who filed a complaint eventually exited.
-* **Gender Disparity:** Female customers are **1.5x more likely** to churn (25.1%) compared to male customers (16.5%).
+## Key Strategic Findings
+* **The "Two-Product" Anchor:** Identified a loyalty "Survival Sweet Spot" where customers with exactly 2 products show the lowest churn (11–13%).
+* **Product Over-Saturation:** Churn spikes to **90–100%** when German customers reach 3 or 4 products, suggesting complex bundles drive exits.
+* **The Service Gap:** Discovered a **100% failure rate** in complaint-driven retention; every customer who filed a complaint eventually closed their account.
+* **Premium Segment Flight:** Churn is high among "Very Good" credit tier customers (~33.5%), matching the rate of high-risk segments.
+* **Gender Disparity:** Female customers are **1.5 times more likely** to leave the bank than men.
 
 ---
 
-##  Data Integrity & Methodology
-To ensure professional-grade accuracy, the following preprocessing steps were taken in R:
-1. **Noise Removal:** Dropped irrelevant identifiers (`RowNumber`, `CustomerId`, `Surname`).
-2. **Feature Engineering:** Re-classified binary integers into **Factors** (`Exited`, `Complain`, etc.) for robust statistical grouping.
-3. **Logic Verification:** Implemented `as.numeric(as.character())` transformations to ensure accurate percentage calculations for binary levels.
+## Data Cleaning & Methodology
+To ensure statistical integrity, the raw dataset underwent rigorous preprocessing in R:
+1. **Dimensionality Reduction:** Removed irrelevant identifiers such as `RowNumber`, `CustomerId`, and `Surname` to reduce noise.
+2. **Attribute Re-classification:** Converted categorical integers (`Exited`, `HasCrCard`, `IsActiveMember`, `Complain`) into **Factors** for accurate grouping.
+3. **Metric Calculation:** Utilized nested `as.numeric(as.character())` transformations to ensure binary factor levels were correctly interpreted for percentage calculations.
+
+---
 
 ## Repository Structure
-* `churn_analysis.Rmd`: The R source code with documented cleaning steps.
-* `churn_analysis.html`: The final knitted report for executive review.
+* `bank_churn_data.csv`: Raw demographic and financial records.
+* `churn_analysis.Rmd`: The source R Markdown file containing all documented cleaning steps.
+* `churn_analysis.html`: The final knitted report with all code hidden for professional presentation.
 
 ---
 **Maria Aslam** 
-**Contact:** [LinkedIn](https://www.linkedin.com/in/maria-aslam-458860316/)
+ [LinkedIn](https://www.linkedin.com/in/maria-aslam-458860316/)
