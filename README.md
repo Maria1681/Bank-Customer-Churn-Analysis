@@ -12,10 +12,10 @@ This analysis investigates a critical churn crisis across European banking opera
 
 ---
 
-## Technical Stack (R-Suite)
+## Technical Stack (R)
 | Category | Tools & Libraries |
 | :--- | :--- |
-| **Language** | R (v4.0+) |
+| **Language** | R |
 | **Data Wrangling** | `tidyverse` (dplyr, tidyr, readr) |
 | **Visualization** | `ggplot2` |
 | **Methodology** | [cite_start]Factor Re-classification, Dimensionality Reduction [cite: 27, 30] |
