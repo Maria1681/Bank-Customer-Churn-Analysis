@@ -7,7 +7,7 @@
 This analysis investigates a critical churn crisis across European banking operations. While France and Spain maintain stable churn rates (~16%), the German market exhibits a severe **32.4% churn rate**This project identifies the "Product Fatigue" threshold and provides a data-driven roadmap for stabilizing high-value customer segments.
 
 ## Project Deliverables
-* 📈 **[Live Analysis Report](https://bank-customer-churn-analysis.netlify.app/)** — *Full R-Markdown Executive Summary*
+* 📈 **[Live Analysis Report](https://maria1681.github.io/bank_customer_churn_analysis_report.html)** — *Full Live .html Executive Summary*
 * 💾 **[Technical R-Script](bank_churn.Rmd)** — *End-to-end cleaning and visualization logic*
 
 ---
@@ -41,7 +41,7 @@ To ensure statistical integrity, the raw dataset underwent rigorous preprocessin
 ---
 
 ## Repository Structure
-*  '[Churn Analysis](https://bank-customer-churn-analysis.netlify.app/)': for live report
+*  '[Churn Analysis](https://maria1681.github.io/bank_customer_churn_analysis_report.html)': for live report
 * `bank_churn.Rmd`: The source R Markdown file containing all documented cleaning steps.
 * `index.html`: The final knitted report with all code hidden for professional presentation.
 
